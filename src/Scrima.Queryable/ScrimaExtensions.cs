@@ -31,6 +31,28 @@ public static partial class ScrimaExtensions
 
         return new QueryResult<T>(result, count);
     }
+    
+    public static QueryResult<TR> ToQueryResult<T,TR>(this IQueryable<T> source, QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null)
+    {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+
+        // The order of applying the items to the IQueryable is important
+        // 1. apply query and order
+        var res = ApplyQuery<T, TR>(source, queryOptions, searchPredicate);
+
+        // 2. optionally get the count of unfiltered items
+        long? count = null;
+        if (queryOptions.ShowCount) count = res.LongCount();
+
+        // 3. apply paging on the sorted and filtered result.
+        res = res.Paginate(queryOptions);
+
+        // 4. materialize results
+        var result = res.ToList();
+
+        return new QueryResult<TR>(result, count);
+    }
 
     /// <summary>
     /// This method is used by friendly assemblies to implement the async version. This is usually done
@@ -83,9 +105,32 @@ public static partial class ScrimaExtensions
         source = source.Where(queryOptions.Filter);
 
         // 3. handle the "search" parameter
-        return source.Search(queryOptions, searchPredicate);
+        source = source.Search(queryOptions, searchPredicate);
+
+        source = source.Select(queryOptions.Select);
+
+        return source;
     }
 
+    private static IQueryable<TResult> ApplyQuery<TSource, TResult>(
+        IQueryable<TSource> source,
+        QueryOptions queryOptions,
+        Expression<Func<TSource, string, bool>> searchPredicate)
+    {
+        // 1. sort to have the correct order for filtering and limiting
+        source = source.OrderBy(queryOptions.OrderBy);
+
+        // 2. filter the items according to the user input
+        source = source.Where(queryOptions.Filter);
+
+        // 3. handle the "search" parameter
+        source = source.Search(queryOptions, searchPredicate);
+
+        var results = source.Select<TSource, TResult>(queryOptions.Select);
+
+        return results;
+    }
+    
     private static IQueryable<TSource> Search<TSource>(this IQueryable<TSource> source, QueryOptions queryOptions, Expression<Func<TSource, string, bool>> searchPredicate)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));

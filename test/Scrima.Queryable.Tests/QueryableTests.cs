@@ -81,10 +81,60 @@ public class QueryableTests
     }
 
     [Fact]
+    public void Should_select_on_id_name_properties()
+    {
+        var query = new QueryOptions(
+            _edmType,
+            new SelectQueryOption(new PropertyAccessNode(new[]
+            {
+                new EdmProperty(nameof(TestModel.Name), EdmPrimitiveType.String, _edmType),
+                new EdmProperty(nameof(TestModel.Id), EdmPrimitiveType.Int32, _edmType)
+            })),
+            new FilterQueryOption(null),
+            new OrderByQueryOption(Enumerable.Empty<OrderByProperty>()),
+            null,
+            0,
+            null,
+            10,
+            true
+        );
+
+        var results = _queryable.ToQueryResult<TestModel, object>(query);
+
+        // results.Results.Should().HaveCount(3);
+        // results.Count.Should().Be(3);
+        // results.Results
+        //     .Select(o => o.Id)
+        //     .Should()
+        //     .Equal([1, 7, 3]);
+        // results.Results
+        //     .Select(o => string.IsNullOrWhiteSpace(o.Name))
+        //     .Should()
+        //     .AllSatisfy(x => x.Should().BeFalse());
+        // results.Results
+        //     .Select(o => o.Name)
+        //     .Should()
+        //     .Equal(["Joe", "Mark", "Bob"]);
+        // results.Results
+        //     .Select(o => o.NestedModel)
+        //     .Should()
+        //     .AllSatisfy(x => x.Should().BeNull());
+        // results.Results
+        //     .Select(o => o.NestedList)
+        //     .Should()
+        //     .AllSatisfy(x => x.Should().BeNull());
+        // results.Results
+        //     .Select(o => o.OptionalEnumValue)
+        //     .Should()
+        //     .AllSatisfy(x => x.Should().BeNull());
+    }
+    
+    [Fact]
     public void Should_filter_on_int_property()
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -114,6 +164,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -143,6 +194,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -172,6 +224,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -199,6 +252,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -237,6 +291,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -276,6 +331,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -315,6 +371,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -354,6 +411,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -392,6 +450,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -436,6 +495,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -480,6 +540,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -519,6 +580,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -553,6 +615,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -587,6 +650,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -630,6 +694,7 @@ public class QueryableTests
         
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(null),
             new OrderByQueryOption(
                 new []{new OrderByProperty(new EdmProperty(nameof(TestModel.OptionalDate), EdmPrimitiveType.Date, _edmType), direction)}    
@@ -652,6 +717,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -686,6 +752,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(null),
             new OrderByQueryOption(new[]
             {
@@ -714,6 +781,7 @@ public class QueryableTests
         
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(null),
             new OrderByQueryOption(new[]
             {

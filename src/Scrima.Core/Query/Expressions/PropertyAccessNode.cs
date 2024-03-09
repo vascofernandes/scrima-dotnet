@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Scrima.Core.Model;
 
 namespace Scrima.Core.Query.Expressions;
@@ -18,6 +20,14 @@ public sealed class PropertyAccessNode : ValueNode
     public PropertyAccessNode(IEnumerable<EdmProperty> properties)
     {
         Properties = new ReadOnlyCollection<EdmProperty>(properties.ToList());
+        var map = new Dictionary<PropertyInfo, EdmProperty>();
+        foreach (var property in Properties)
+        {
+            var declaringType = property.DeclaringType.ClrType;
+            var prop = declaringType.GetProperty(property.Name) ?? throw new InvalidOperationException();
+            map.Add(prop, property);
+        }
+        PropertiesMap = new ReadOnlyDictionary<PropertyInfo, EdmProperty>(map);
     }
 
     /// <summary>
@@ -29,6 +39,7 @@ public sealed class PropertyAccessNode : ValueNode
     /// Gets the properties being referenced in the query.
     /// </summary>
     public IReadOnlyList<EdmProperty> Properties { get; }
+    public ReadOnlyDictionary<PropertyInfo, EdmProperty> PropertiesMap { get; }
 
     /// <summary>
     /// Gets the <see cref="EdmType"/> of the property value.

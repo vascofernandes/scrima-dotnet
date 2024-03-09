@@ -25,5 +25,6 @@ internal enum TokenType
     UnaryOperator,
     TimeOfDay,
     Duration,
-    Enum
+    Enum,
+    Star
 }

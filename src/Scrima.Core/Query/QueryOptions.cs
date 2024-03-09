@@ -13,6 +13,7 @@ public class QueryOptions
     /// Initialises a new instance of the <see cref="QueryOptions" /> class.
     /// </summary>
     /// <param name="edmType"></param>
+    /// <param name="select">Select query option</param>
     /// <param name="filter">Filter query option</param>
     /// <param name="orderBy">Order by query option</param>
     /// <param name="search">Search query option</param>
@@ -20,10 +21,19 @@ public class QueryOptions
     /// <param name="skipToken">Skip token query option</param>
     /// <param name="top">Top query option</param>
     /// <param name="showCount">Show count query option</param>
-    public QueryOptions(EdmComplexType edmType, FilterQueryOption filter, OrderByQueryOption orderBy,
-        string search, long? skip, string skipToken, long? top, bool showCount)
+    public QueryOptions(
+        EdmComplexType edmType,
+        SelectQueryOption select,
+        FilterQueryOption filter,
+        OrderByQueryOption orderBy,
+        string search,
+        long? skip,
+        string skipToken,
+        long? top,
+        bool showCount)
     {
         EdmType = edmType ?? throw new ArgumentNullException(nameof(edmType));
+        Select = select ?? throw new ArgumentNullException(nameof(select));
         Filter = filter ?? throw new ArgumentNullException(nameof(filter));
         OrderBy = orderBy ?? throw new ArgumentNullException(nameof(orderBy));
         Search = search;
@@ -38,6 +48,11 @@ public class QueryOptions
     /// </summary>
     public EdmComplexType EdmType { get; }
 
+    /// <summary>
+    /// Gets the select query option.
+    /// </summary>
+    public SelectQueryOption Select { get; }
+    
     /// <summary>
     /// Gets the filter query option.
     /// </summary>
@@ -77,6 +92,11 @@ public class QueryOptions
     {
         var builder = new StringBuilder($"QueryOptions[{EdmType.Name}]: ");
 
+        if (Select is not null)
+        {
+            builder.Append($"{Select}; ");
+        }
+        
         if (Filter is not null)
         {
             builder.Append($"{Filter}; ");

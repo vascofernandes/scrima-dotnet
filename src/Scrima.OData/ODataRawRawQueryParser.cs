@@ -27,6 +27,10 @@ public class ODataRawRawQueryParser : IODataRawQueryParser
 
         var modelType = (EdmComplexType) _typeProvider.GetByClrType(itemType);
 
+        var selectOptions = rawQuery.Select != null
+            ? ODataQueryParseHelper.ParseSelect(rawQuery.Select, modelType, _typeProvider)
+            : new SelectQueryOption(null);
+        
         var filterOptions = rawQuery.Filter != null
             ? ODataQueryParseHelper.ParseFilter(rawQuery.Filter, modelType, _typeProvider)
             : new FilterQueryOption(null);
@@ -68,6 +72,7 @@ public class ODataRawRawQueryParser : IODataRawQueryParser
 
         return new QueryOptions(
             modelType,
+            selectOptions,
             filterOptions,
             orderByOptions,
             searchOptions,
