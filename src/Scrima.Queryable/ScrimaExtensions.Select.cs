@@ -71,12 +71,14 @@ public static partial class ScrimaExtensions
     private static MemberInitExpression BuildMemberInit(
         Type projectionType,
         Expression source,
-        SelectQueryOption select)
+        SelectQueryOption select,
+        bool forceSelectAll = false)
     {
         var sourceType = source?.Type ?? throw new ArgumentNullException(nameof(source));
 
         var propAccessNode = select?.Expression as PropertyAccessNode;
-        var selectAllProperties = select == null ||
+        var selectAllProperties = forceSelectAll ||
+                                  select == null ||
                                   select.IsStarSelect ||
                                   propAccessNode == null ||
                                   propAccessNode.Properties.Count == 0;
@@ -89,14 +91,80 @@ public static partial class ScrimaExtensions
 
         foreach (var property in projectionType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (IsNavigationProperty(property, out _, out _))
+            if (!sourcePropertiesByName.TryGetValue(property.Name, out var sourceProperty))
             {
-                memberBindings.Add(Expression.Bind(property, Expression.Constant(null, property.PropertyType)));
                 continue;
             }
 
-            if (!sourcePropertiesByName.TryGetValue(property.Name, out var sourceProperty))
+            if (IsNavigationProperty(property, out var itemType, out var isCollection))
             {
+                var isSelected = selectAllProperties || (propAccessNode?.PropertiesMap.ContainsKey(sourceProperty) ?? false);
+
+                if (!isSelected)
+                {
+                    memberBindings.Add(Expression.Bind(property, Expression.Constant(null, property.PropertyType)));
+                    continue;
+                }
+
+                var shouldSelectAllChildren = selectAllProperties;
+                if (!shouldSelectAllChildren && propAccessNode != null)
+                {
+                    var anyChildSelected = false;
+                    foreach (var childProp in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                    {
+                        if (propAccessNode.PropertiesMap.ContainsKey(childProp))
+                        {
+                            anyChildSelected = true;
+                            break;
+                        }
+                    }
+                    shouldSelectAllChildren = !anyChildSelected;
+                }
+
+                Expression valueExpression = Expression.MakeMemberAccess(source, sourceProperty);
+
+                if (isCollection)
+                {
+                    var childParam = Expression.Parameter(itemType, "child");
+                    var childInit = BuildMemberInit(itemType, childParam, select, shouldSelectAllChildren);
+                    var selector = Expression.Lambda(childInit, childParam);
+
+                    var selectMethod = typeof(Enumerable)
+                        .GetMethods()
+                        .First(m => m.Name == "Select" && m.GetParameters().Length == 2)
+                        .MakeGenericMethod(itemType, itemType);
+
+                    Expression projectedValue = Expression.Call(selectMethod, valueExpression, selector);
+
+                    if (!property.PropertyType.IsAssignableFrom(projectedValue.Type))
+                    {
+                        if (property.PropertyType.IsArray)
+                        {
+                            var toArrayMethod = typeof(Enumerable)
+                                .GetMethod("ToArray")
+                                .MakeGenericMethod(itemType);
+                            projectedValue = Expression.Call(toArrayMethod, projectedValue);
+                        }
+                        else if (typeof(List<>).MakeGenericType(itemType).IsAssignableFrom(property.PropertyType))
+                        {
+                            var toListMethod = typeof(Enumerable)
+                                .GetMethod("ToList")
+                                .MakeGenericMethod(itemType);
+                            projectedValue = Expression.Call(toListMethod, projectedValue);
+                        }
+                    }
+                    
+                    memberBindings.Add(Expression.Bind(property, projectedValue));
+                }
+                else
+                {
+                    var inlineInit = BuildMemberInit(itemType, valueExpression, select, shouldSelectAllChildren);
+                    var nullCheck = Expression.Equal(valueExpression, Expression.Constant(null, valueExpression.Type));
+                    var projectedValue = Expression.Condition(nullCheck, Expression.Constant(null, property.PropertyType), inlineInit);
+                    
+                    memberBindings.Add(Expression.Bind(property, projectedValue));
+                }
+                
                 continue;
             }
 
@@ -105,14 +173,14 @@ public static partial class ScrimaExtensions
                 continue;
             }
 
-            Expression valueExpression = Expression.MakeMemberAccess(source, sourceProperty);
+            Expression valueExpression1 = Expression.MakeMemberAccess(source, sourceProperty);
 
-            if (!TryCreateAssignmentExpression(property.PropertyType, ref valueExpression))
+            if (!TryCreateAssignmentExpression(property.PropertyType, ref valueExpression1))
             {
                 continue;
             }
 
-            memberBindings.Add(Expression.Bind(property, valueExpression));
+            memberBindings.Add(Expression.Bind(property, valueExpression1));
         }
 
         return Expression.MemberInit(Expression.New(projectionType), memberBindings);

@@ -1,5 +1,4 @@
 using System;
-using Scrima.Core.Query;
 
 namespace Scrima.OData.Swashbuckle;
 
