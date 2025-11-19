@@ -651,6 +651,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
@@ -684,6 +685,7 @@ public class QueryableTests
     {
         var query = new QueryOptions(
             _edmType,
+            new SelectQueryOption(null),
             new FilterQueryOption(
                 new BinaryOperatorNode(
                     new PropertyAccessNode(
