@@ -25,7 +25,11 @@ public sealed class PropertyAccessNode : ValueNode
         {
             var declaringType = property.DeclaringType.ClrType;
             var prop = declaringType.GetProperty(property.Name) ?? throw new InvalidOperationException();
-            map.Add(prop, property);
+
+            if (!map.ContainsKey(prop))
+            {
+                map.Add(prop, property);
+            }
         }
         PropertiesMap = new ReadOnlyDictionary<PropertyInfo, EdmProperty>(map);
     }

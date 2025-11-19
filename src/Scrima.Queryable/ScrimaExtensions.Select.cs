@@ -69,39 +69,53 @@ public static partial class ScrimaExtensions
     }
     
     private static MemberInitExpression BuildMemberInit(
-        Type itemType,
+        Type projectionType,
         Expression source,
         SelectQueryOption select)
     {
-        var selectAllProperties = select == null ||
-                                  select.IsStarSelect ||
-                                  select.Expression == null ||
-                                  select.Expression is not PropertyAccessNode ||
-                                  (select.Expression is PropertyAccessNode temp && temp.Properties.Count == 0);
+        var sourceType = source?.Type ?? throw new ArgumentNullException(nameof(source));
 
         var propAccessNode = select?.Expression as PropertyAccessNode;
-        
+        var selectAllProperties = select == null ||
+                                  select.IsStarSelect ||
+                                  propAccessNode == null ||
+                                  propAccessNode.Properties.Count == 0;
+
+        var sourcePropertiesByName = sourceType
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
+
         var memberBindings = new List<MemberBinding>();
 
-        foreach (var property in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var property in projectionType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (IsNavigationProperty(property, out _, out _))
             {
-                // navigation properties that are not expanded, are not loaded
-                // Prop1 = null
                 memberBindings.Add(Expression.Bind(property, Expression.Constant(null, property.PropertyType)));
+                continue;
             }
-            else if (selectAllProperties || (propAccessNode?.PropertiesMap.ContainsKey(property) ?? false))
+
+            if (!sourcePropertiesByName.TryGetValue(property.Name, out var sourceProperty))
             {
-                // Prop1 = arg.prop1
-                memberBindings.Add(Expression.Bind(property, Expression.MakeMemberAccess(source, property)));
+                continue;
             }
+
+            if (!selectAllProperties && !(propAccessNode?.PropertiesMap.ContainsKey(sourceProperty) ?? false))
+            {
+                continue;
+            }
+
+            Expression valueExpression = Expression.MakeMemberAccess(source, sourceProperty);
+
+            if (!TryCreateAssignmentExpression(property.PropertyType, ref valueExpression))
+            {
+                continue;
+            }
+
+            memberBindings.Add(Expression.Bind(property, valueExpression));
         }
 
-        return Expression.MemberInit(
-            Expression.New(itemType),
-            memberBindings
-        );
+        return Expression.MemberInit(Expression.New(projectionType), memberBindings);
     }
 
     internal static bool IsNavigationProperty(PropertyInfo property, out Type itemType, out bool isCollection)
@@ -123,6 +137,34 @@ public static partial class ScrimaExtensions
 
         itemType = null;
         isCollection = false;
+        return false;
+    }
+
+    private static bool TryCreateAssignmentExpression(Type targetType, ref Expression valueExpression)
+    {
+        if (targetType == null) throw new ArgumentNullException(nameof(targetType));
+        if (valueExpression == null) throw new ArgumentNullException(nameof(valueExpression));
+
+        var sourceType = valueExpression.Type;
+
+        if (targetType == sourceType)
+        {
+            return true;
+        }
+
+        if (targetType.IsAssignableFrom(sourceType))
+        {
+            valueExpression = Expression.Convert(valueExpression, targetType);
+            return true;
+        }
+
+        var nullableTarget = Nullable.GetUnderlyingType(targetType);
+        if (nullableTarget != null && nullableTarget == sourceType)
+        {
+            valueExpression = Expression.Convert(valueExpression, targetType);
+            return true;
+        }
+
         return false;
     }
 }

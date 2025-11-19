@@ -101,34 +101,75 @@ public class QueryableTests
             true
         );
 
-        var results = _queryable.ToQueryResult<TestModel, object>(query);
+        var results = _queryable.ToQueryResult(query);
 
-        // results.Results.Should().HaveCount(3);
-        // results.Count.Should().Be(3);
-        // results.Results
-        //     .Select(o => o.Id)
-        //     .Should()
-        //     .Equal([1, 7, 3]);
-        // results.Results
-        //     .Select(o => string.IsNullOrWhiteSpace(o.Name))
-        //     .Should()
-        //     .AllSatisfy(x => x.Should().BeFalse());
-        // results.Results
-        //     .Select(o => o.Name)
-        //     .Should()
-        //     .Equal(["Joe", "Mark", "Bob"]);
-        // results.Results
-        //     .Select(o => o.NestedModel)
-        //     .Should()
-        //     .AllSatisfy(x => x.Should().BeNull());
-        // results.Results
-        //     .Select(o => o.NestedList)
-        //     .Should()
-        //     .AllSatisfy(x => x.Should().BeNull());
-        // results.Results
-        //     .Select(o => o.OptionalEnumValue)
-        //     .Should()
-        //     .AllSatisfy(x => x.Should().BeNull());
+        results.Results.Should().HaveCount(3);
+        results.Count.Should().Be(3);
+        results.Results.Select(o => o.Id).Should().Equal(1, 7, 3);
+        results.Results.Select(o => o.Name).Should().Equal("Joe", "Mark", "Bob");
+        results.Results.Should().AllSatisfy(item =>
+        {
+            item.NestedModel.Should().BeNull();
+            item.NestedList.Should().BeNull();
+            item.OptionalEnumValue.Should().BeNull();
+            item.NullableLong.Should().BeNull();
+            item.Price.Should().Be(0);
+        });
+    }
+
+    [Fact]
+    public void Should_select_duplicate_properties_without_throwing()
+    {
+        var query = new QueryOptions(
+            _edmType,
+            new SelectQueryOption(new PropertyAccessNode(new[]
+            {
+                new EdmProperty(nameof(TestModel.Name), EdmPrimitiveType.String, _edmType),
+                new EdmProperty(nameof(TestModel.Name), EdmPrimitiveType.String, _edmType),
+                new EdmProperty(nameof(TestModel.Id), EdmPrimitiveType.Int32, _edmType)
+            })),
+            new FilterQueryOption(null),
+            new OrderByQueryOption(Enumerable.Empty<OrderByProperty>()),
+            null,
+            0,
+            null,
+            10,
+            true
+        );
+
+        var results = _queryable.ToQueryResult(query);
+
+        results.Results.Should().HaveCount(3);
+        results.Results.Select(o => o.Name).Should().Equal("Joe", "Mark", "Bob");
+    }
+
+    [Fact]
+    public void Should_project_select_into_custom_type()
+    {
+        var query = new QueryOptions(
+            _edmType,
+            new SelectQueryOption(new PropertyAccessNode(new[]
+            {
+                new EdmProperty(nameof(TestModel.Name), EdmPrimitiveType.String, _edmType),
+                new EdmProperty(nameof(TestModel.Id), EdmPrimitiveType.Int32, _edmType),
+                new EdmProperty(nameof(TestModel.Price), EdmPrimitiveType.Decimal, _edmType)
+            })),
+            new FilterQueryOption(null),
+            new OrderByQueryOption(Enumerable.Empty<OrderByProperty>()),
+            null,
+            0,
+            null,
+            10,
+            true
+        );
+
+        var results = _queryable.ToQueryResult<TestModel, TestModelProjection>(query);
+
+        results.Results.Should().AllBeOfType<TestModelProjection>();
+        results.Results.Select(o => o.Id).Should().Equal(1, 7, 3);
+        results.Results.Select(o => o.Name).Should().Equal("Joe", "Mark", "Bob");
+        results.Results.Select(o => o.Price).Should().Equal(30m, 0m, 20.51m);
+        results.Results.Should().AllSatisfy(item => item.Ignored.Should().BeNull());
     }
     
     [Fact]
@@ -873,6 +914,14 @@ public class QueryableTests
         results.Results.Should().HaveCount(3);
         results.Count.Should().Be(3);
         results.Results.Should().BeInAscendingOrder(o => o.NestedModel.Id);
+    }
+
+    public class TestModelProjection
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal? Price { get; set; }
+        public string Ignored { get; set; }
     }
 
     public class TestModel
