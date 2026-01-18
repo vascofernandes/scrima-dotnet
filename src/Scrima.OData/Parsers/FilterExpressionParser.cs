@@ -146,7 +146,11 @@ internal static class FilterExpressionParser
                         }
                         else
                         {
-                            if (binaryNode == null) throw new InvalidOperationException("binaryNode is null in TokenType.PropertyName");
+                            if (binaryNode == null)
+                            {
+                                throw new InvalidOperationException("binaryNode is null in TokenType.PropertyName");
+                            }
+
                             binaryNode.Right = propertyAccessNode;
                         }
 
@@ -174,7 +178,11 @@ internal static class FilterExpressionParser
                         }
                         else
                         {
-                            if (binaryNode == null) throw new InvalidOperationException("binaryNode is null in TokenType.True");
+                            if (binaryNode == null)
+                            {
+                                throw new InvalidOperationException("binaryNode is null in TokenType.True");
+                            }
+
                             binaryNode.Right = constantNode;
                         }
 

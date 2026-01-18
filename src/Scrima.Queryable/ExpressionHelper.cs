@@ -319,10 +319,14 @@ internal static class ExpressionHelper
     private static Expression ConvertExpression(Expression toPromote, bool expressionTypeIsNullable, Type otherType, Type otherNullableType)
     {
         if (!expressionTypeIsNullable && otherNullableType is null)
+        {
             return Expression.Convert(toPromote, otherType);
+        }
 
         if (otherNullableType is not null)
+        {
             return Expression.Convert(toPromote, otherNullableType);
+        }
 
         var nullableType = typeof(Nullable<>).MakeGenericType(otherType);
 
@@ -343,16 +347,22 @@ internal static class ExpressionHelper
 
     public static object ToEnumValue(Type enumType, object value)
     {
-        if (value is int) return Enum.ToObject(enumType, value);
+        if (value is int)
+        {
+            return Enum.ToObject(enumType, value);
+        }
 
-        if (value is string stringValue) return ParseEnum(enumType, stringValue);
+        if (value is string stringValue)
+        {
+            return ParseEnum(enumType, stringValue);
+        }
 
         return Enum.ToObject(enumType, 0);
     }
         
     public static object ParseEnum(Type enumType, string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         var names = Enum.GetNames(enumType);
         var values = Enum.GetValues(enumType);

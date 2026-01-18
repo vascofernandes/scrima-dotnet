@@ -10,11 +10,11 @@ namespace Scrima.OData.AspNetCore;
 
 internal class ODataQueryModelBinder : IModelBinder
 {
-    private readonly IODataRawQueryParser _parser;
+    private readonly IoDataRawQueryParser _parser;
     private readonly ILogger<ODataQueryModelBinder> _logger;
     private readonly ODataQueryDefaultOptions _defaultOptions;
 
-    public ODataQueryModelBinder(IODataRawQueryParser parser, ILogger<ODataQueryModelBinder> logger, IOptions<ODataQueryDefaultOptions> options)
+    public ODataQueryModelBinder(IoDataRawQueryParser parser, ILogger<ODataQueryModelBinder> logger, IOptions<ODataQueryDefaultOptions> options)
     {
             _parser = parser;
             _logger = logger;
@@ -23,11 +23,14 @@ internal class ODataQueryModelBinder : IModelBinder
 
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-            if (bindingContext == null) throw new ArgumentNullException(nameof(bindingContext));
+        ArgumentNullException.ThrowIfNull(bindingContext);
 
-            if (!bindingContext.ModelType.IsODataQuery()) return Task.CompletedTask;
+        if (!bindingContext.ModelType.IsODataQuery())
+        {
+            return Task.CompletedTask;
+        }
 
-            try
+        try
             {
                 var rawQuery = QueryCollectionHelper.CreateODataRawQueryOptions(bindingContext.HttpContext.Request.Query);
                 
@@ -46,6 +49,7 @@ internal class ODataQueryModelBinder : IModelBinder
                     odataQuery.Skip = queryOptions.Skip;
                     odataQuery.Top = queryOptions.Top;
 
+                    odataQuery.Select = rawQuery.Select;
                     odataQuery.Filter = rawQuery.Filter;
                     odataQuery.Search = rawQuery.Search;
                     odataQuery.OrderBy = rawQuery.OrderBy;
@@ -66,16 +70,20 @@ internal class ODataQueryModelBinder : IModelBinder
 
     private ODataQueryDefaultOptions BuildODataQueryDefaultOptions(ModelBindingContext bindingContext)
     {
-            if (bindingContext.ModelMetadata is not DefaultModelMetadata metadata) 
+            if (bindingContext.ModelMetadata is not DefaultModelMetadata metadata)
+            {
                 return _defaultOptions;
-            
+            }
+
             var optionsAttribute = metadata.Attributes.Attributes
                 .OfType<ODataQueryDefaultOptionsAttribute>()
                 .FirstOrDefault();
 
-            if (optionsAttribute is null) 
+            if (optionsAttribute is null)
+            {
                 return _defaultOptions;
-            
+            }
+
             return optionsAttribute.BuildOptions(_defaultOptions);
         }
 }

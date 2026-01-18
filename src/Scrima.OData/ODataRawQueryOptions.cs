@@ -25,21 +25,18 @@ public sealed class ODataRawQueryOptions
     /// <exception cref="ArgumentNullException">Thrown if raw query is null.</exception>
     public static ODataRawQueryOptions ParseRawQuery(string rawQuery)
     {
-        const string selectFullParam = SelectParamName + "=";
-        const string filterFullParam = FilterParamName + "=";
-        const string orderByFullParam = OrderByParamName + "=";
-        const string skipFullParam = SkipParamName + "=";
-        const string topFullParam = TopParamName + "=";
-        const string searchFullParam = SearchParamName + "=";
-        const string skipTokenFullParam = SkipTokenParamName + "=";
-        const string countFullParam = CountParamName + "=";
+        const string SelectFullParam = SelectParamName + "=";
+        const string FilterFullParam = FilterParamName + "=";
+        const string OrderByFullParam = OrderByParamName + "=";
+        const string SkipFullParam = SkipParamName + "=";
+        const string TopFullParam = TopParamName + "=";
+        const string SearchFullParam = SearchParamName + "=";
+        const string SkipTokenFullParam = SkipTokenParamName + "=";
+        const string CountFullParam = CountParamName + "=";
 
         var options = new ODataRawQueryOptions();
 
-        if (rawQuery == null)
-        {
-            throw new ArgumentNullException(nameof(rawQuery));
-        }
+        ArgumentNullException.ThrowIfNull(rawQuery);
 
         // Any + signs we want in the data should have been encoded as %2B,
         // so do the replace first otherwise we replace legitemate + signs!
@@ -57,60 +54,60 @@ public sealed class ODataRawQueryOptions
                 // Decode the chunks to prevent splitting the query on an '&' which is actually part of a string value
                 var rawQueryOption = Uri.UnescapeDataString(queryOption);
 
-                if (rawQueryOption.StartsWith(selectFullParam, StringComparison.Ordinal))
+                if (rawQueryOption.StartsWith(SelectFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != selectFullParam.Length)
+                    if (rawQueryOption.Length != SelectFullParam.Length)
                     {
-                        options.Select = rawQueryOption.Substring(selectFullParam.Length);
+                        options.Select = rawQueryOption.Substring(SelectFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(filterFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(FilterFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != filterFullParam.Length)
+                    if (rawQueryOption.Length != FilterFullParam.Length)
                     {
-                        options.Filter = rawQueryOption.Substring(filterFullParam.Length);
+                        options.Filter = rawQueryOption.Substring(FilterFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(orderByFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(OrderByFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != orderByFullParam.Length)
+                    if (rawQueryOption.Length != OrderByFullParam.Length)
                     {
-                        options.OrderBy = rawQueryOption.Substring(orderByFullParam.Length);
+                        options.OrderBy = rawQueryOption.Substring(OrderByFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(skipFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(SkipFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != skipFullParam.Length)
+                    if (rawQueryOption.Length != SkipFullParam.Length)
                     {
-                        options.Skip = rawQueryOption.Substring(skipFullParam.Length);
+                        options.Skip = rawQueryOption.Substring(SkipFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(topFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(TopFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != topFullParam.Length)
+                    if (rawQueryOption.Length != TopFullParam.Length)
                     {
-                        options.Top = rawQueryOption.Substring(topFullParam.Length);
+                        options.Top = rawQueryOption.Substring(TopFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(searchFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(SearchFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != searchFullParam.Length)
+                    if (rawQueryOption.Length != SearchFullParam.Length)
                     {
-                        options.Search = rawQueryOption.Substring(searchFullParam.Length);
+                        options.Search = rawQueryOption.Substring(SearchFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(skipTokenFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(SkipTokenFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != skipTokenFullParam.Length)
+                    if (rawQueryOption.Length != SkipTokenFullParam.Length)
                     {
-                        options.SkipToken = rawQueryOption.Substring(skipTokenFullParam.Length);
+                        options.SkipToken = rawQueryOption.Substring(SkipTokenFullParam.Length);
                     }
                 }
-                else if (rawQueryOption.StartsWith(countFullParam, StringComparison.Ordinal))
+                else if (rawQueryOption.StartsWith(CountFullParam, StringComparison.Ordinal))
                 {
-                    if (rawQueryOption.Length != countFullParam.Length)
+                    if (rawQueryOption.Length != CountFullParam.Length)
                     {
-                        options.Count = rawQueryOption.Substring(countFullParam.Length);
+                        options.Count = rawQueryOption.Substring(CountFullParam.Length);
                     }
                 }
             }

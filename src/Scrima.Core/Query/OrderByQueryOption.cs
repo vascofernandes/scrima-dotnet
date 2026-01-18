@@ -25,7 +25,9 @@ public sealed class OrderByQueryOption
     public override string ToString()
     {
         if (Properties.Count == 0)
+        {
             return "OrderBy=<none>";
+        }
 
         var props = string.Join(",", Properties);
         

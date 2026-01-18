@@ -29,10 +29,13 @@ public static partial class ScrimaExtensions
     public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source,
         FilterQueryOption filterQueryOption)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (filterQueryOption == null) throw new ArgumentNullException(nameof(filterQueryOption));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(filterQueryOption);
 
-        if (filterQueryOption.Expression is null) return source;
+        if (filterQueryOption.Expression is null)
+        {
+            return source;
+        }
 
         var parameter = Expression.Parameter(source.ElementType, "o");
 
@@ -82,18 +85,26 @@ public static partial class ScrimaExtensions
 
         // bitwise operations
         if (kind == BinaryOperatorKind.Or)
+        {
             return Expression.OrElse(left, right);
+        }
 
         if (kind == BinaryOperatorKind.And)
+        {
             return Expression.AndAlso(left, right);
+        }
 
         // enum.HasFlag()
         if (kind == BinaryOperatorKind.Has)
+        {
             return Expression.Call(null, Methods.HasFlag, left, Expression.Convert(right, typeof(Enum)));
+        }
 
         // collection contains
         if (kind == BinaryOperatorKind.In)
-            return CreateFunctionCallExpression("contains", new []{ right, left });
+        {
+            return CreateFunctionCallExpression("contains", [right, left]);
+        }
 
         var expressionType = kind switch
         {

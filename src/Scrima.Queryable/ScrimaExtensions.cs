@@ -12,8 +12,8 @@ public static partial class ScrimaExtensions
 {
     public static QueryResult<T> ToQueryResult<T>(this IQueryable<T> source, QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         // The order of applying the items to the IQueryable is important
         // 1. apply query and order
@@ -21,7 +21,10 @@ public static partial class ScrimaExtensions
 
         // 2. optionally get the count of unfiltered items
         long? count = null;
-        if (queryOptions.ShowCount) count = source.LongCount();
+        if (queryOptions.ShowCount)
+        {
+            count = source.LongCount();
+        }
 
         // 3. apply paging on the sorted and filtered result.
         source = source.Paginate(queryOptions);
@@ -32,18 +35,21 @@ public static partial class ScrimaExtensions
         return new QueryResult<T>(result, count);
     }
     
-    public static QueryResult<TR> ToQueryResult<T,TR>(this IQueryable<T> source, QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null)
+    public static QueryResult<Tr> ToQueryResult<T,Tr>(this IQueryable<T> source, QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         // The order of applying the items to the IQueryable is important
         // 1. apply query and order
-        var res = ApplyQuery<T, TR>(source, queryOptions, searchPredicate);
+        var res = ApplyQuery<T, Tr>(source, queryOptions, searchPredicate);
 
         // 2. optionally get the count of unfiltered items
         long? count = null;
-        if (queryOptions.ShowCount) count = res.LongCount();
+        if (queryOptions.ShowCount)
+        {
+            count = res.LongCount();
+        }
 
         // 3. apply paging on the sorted and filtered result.
         res = res.Paginate(queryOptions);
@@ -51,7 +57,7 @@ public static partial class ScrimaExtensions
         // 4. materialize results
         var result = res.ToList();
 
-        return new QueryResult<TR>(result, count);
+        return new QueryResult<Tr>(result, count);
     }
 
     /// <summary>
@@ -75,8 +81,8 @@ public static partial class ScrimaExtensions
         Expression<Func<T, string, bool>> searchPredicate,
         CancellationToken cancellationToken)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         // The order of applying the items to the IQueryable is important
         // 1. apply query and order
@@ -84,7 +90,10 @@ public static partial class ScrimaExtensions
 
         // 2. optionally get the count of unfiltered items
         long? count = null;
-        if (queryOptions.ShowCount) count = await longCountAsync.Invoke(source, cancellationToken);
+        if (queryOptions.ShowCount)
+        {
+            count = await longCountAsync.Invoke(source, cancellationToken);
+        }
 
         // 3. apply paging on the sorted and filtered result.
         source = source.Paginate(queryOptions);
@@ -112,8 +121,8 @@ public static partial class ScrimaExtensions
         Func<IQueryable<T>, IAsyncEnumerable<T>> asAsyncEnumerable,
         Expression<Func<T, string, bool>> searchPredicate)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         // The order of applying the items to the IQueryable is important
         // 1. apply query and order
@@ -175,12 +184,14 @@ public static partial class ScrimaExtensions
     /// <exception cref="ArgumentNullException">source or queryOptions are null</exception>
     public static IQueryable<TSource> Search<TSource>(this IQueryable<TSource> source, QueryOptions queryOptions, Expression<Func<TSource, string, bool>> searchPredicate)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         if (queryOptions.Search is null || searchPredicate is null)
+        {
             return source;
-            
+        }
+
         // we are transforming a generic expression with two arguments into
         // a single argument expression that uses a constant value instead of a parameter
         // e.g.:
@@ -196,8 +207,8 @@ public static partial class ScrimaExtensions
     public static IQueryable<TSource> Paginate<TSource>(this IQueryable<TSource> source,
         QueryOptions queryOptions)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         source = source.Skip((int)(queryOptions.Skip ?? 0));
 

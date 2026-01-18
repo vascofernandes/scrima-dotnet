@@ -13,9 +13,12 @@ public sealed class ODataQuery<T> : ODataQuery
 {
         
 }
-    
+
 public abstract class ODataQuery
 {
+    [FromQuery(Name = "$select")]
+    public string Select { get; internal set; }
+    
     [FromQuery(Name = "$filter")]
     public string Filter { get; internal set; }
         

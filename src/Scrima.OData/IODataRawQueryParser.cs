@@ -3,7 +3,7 @@ using Scrima.Core.Query;
 
 namespace Scrima.OData;
 
-public interface IODataRawQueryParser
+public interface IoDataRawQueryParser
 {
     QueryOptions ParseOptions(Type itemType, ODataRawQueryOptions rawQuery, ODataQueryDefaultOptions defaultOptions = null);
 }

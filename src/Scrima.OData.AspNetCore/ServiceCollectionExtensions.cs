@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
     /// <param name="configureOptions">Optional action used to configure default options</param>
     public static IServiceCollection AddODataQuery(this IServiceCollection services, Action<ODataQueryDefaultOptions> configureOptions = null)
     {
-        services.AddSingleton<IODataRawQueryParser, ODataRawRawQueryParser>();
+        services.AddSingleton<IoDataRawQueryParser, ODataRawRawQueryParser>();
 
         services.PostConfigure<MvcOptions>(o =>
         {

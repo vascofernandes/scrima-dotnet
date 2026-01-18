@@ -35,8 +35,10 @@ public static class TypeUtilities
     public static Type ParseTargetType(Expression argument)
     {
         if (argument is not ConstantExpression constantExpression)
+        {
             return null;
-            
+        }
+
         if (constantExpression.Value is Type targetType)
         {
             return targetType;

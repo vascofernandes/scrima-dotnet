@@ -40,8 +40,8 @@ public sealed class EdmComplexType : EdmType
     /// <exception cref="System.ArgumentException">The type does not contain a property with the specified name.</exception>
     public EdmProperty GetProperty(string name)
     {
-        if (name == null) throw new ArgumentNullException(nameof(name));
-            
+        ArgumentNullException.ThrowIfNull(name);
+
         foreach (var property in Properties)
         {
             if (string.Equals(name, property.Name, StringComparison.OrdinalIgnoreCase))

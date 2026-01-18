@@ -18,8 +18,8 @@ public sealed class OrderByProperty
         
     public OrderByProperty(IEnumerable<EdmProperty> properties, OrderByDirection direction)
     {
-        if (properties == null) throw new ArgumentNullException(nameof(properties));
-            
+        ArgumentNullException.ThrowIfNull(properties);
+
         Properties = new ReadOnlyCollection<EdmProperty>(properties.ToList());
             
         if (Properties.Count == 0)

@@ -16,8 +16,8 @@ public static class EntityFrameworkScrimaExtensions
         QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null,
         CancellationToken cancellationToken = default)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         return await ScrimaExtensions.ToQueryResultInternalAsync(
             source,
@@ -32,8 +32,8 @@ public static class EntityFrameworkScrimaExtensions
     public static IAsyncEnumerable<T> AsAsyncEnumerable<T>(this IQueryable<T> source,
         QueryOptions queryOptions, Expression<Func<T, string, bool>> searchPredicate = null)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (queryOptions == null) throw new ArgumentNullException(nameof(queryOptions));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(queryOptions);
 
         return ScrimaExtensions.AsAsyncEnumerableInternal(
             source,

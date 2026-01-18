@@ -32,8 +32,8 @@ internal static class ODataQueryParseHelper
 
     private static OrderByProperty ParseOrderByProperty(string rawValue, EdmComplexType model)
     {
-        if (rawValue == null) throw new ArgumentNullException(nameof(rawValue));
-        if (model == null) throw new ArgumentNullException(nameof(model));
+        ArgumentNullException.ThrowIfNull(rawValue);
+        ArgumentNullException.ThrowIfNull(model);
 
         var parts = rawValue.Split(SplitCharacter.Space, StringSplitOptions.RemoveEmptyEntries);
 
@@ -65,18 +65,18 @@ internal static class ODataQueryParseHelper
 
     public static FilterQueryOption ParseFilter(string rawQuery, EdmComplexType model, EdmTypeProvider typeProvider)
     {
-        if (rawQuery == null) throw new ArgumentNullException(nameof(rawQuery));
-        if (model == null) throw new ArgumentNullException(nameof(model));
-        
+        ArgumentNullException.ThrowIfNull(rawQuery);
+        ArgumentNullException.ThrowIfNull(model);
+
         var filterExpression = FilterExpressionParser.Parse(rawQuery, model, typeProvider);
         return new FilterQueryOption(filterExpression);
     }
 
     public static SelectQueryOption ParseSelect(string rawQuery, EdmComplexType model, EdmTypeProvider typeProvider)
     {
-        if (rawQuery == null) throw new ArgumentNullException(nameof(rawQuery));
-        if (model == null) throw new ArgumentNullException(nameof(model));
-        
+        ArgumentNullException.ThrowIfNull(rawQuery);
+        ArgumentNullException.ThrowIfNull(model);
+
         var (selectExpression, isStartSelect) = SelectExpressionParser.Parse(rawQuery, model, typeProvider);
         
         return new SelectQueryOption(selectExpression, isStartSelect);

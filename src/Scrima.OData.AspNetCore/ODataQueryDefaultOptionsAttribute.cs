@@ -5,8 +5,8 @@ namespace Scrima.OData.AspNetCore;
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class ODataQueryDefaultOptionsAttribute : Attribute
 {
-    public const int None = -1;
-    public const int Inherit = -2;
+    private const int None = -1;
+    private const int Inherit = -2;
     
     private bool? _alwaysShowCount;
     public int MaxTop { get; set; } = Inherit;

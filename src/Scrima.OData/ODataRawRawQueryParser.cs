@@ -6,7 +6,7 @@ using Scrima.Core.Query;
 
 namespace Scrima.OData;
 
-public class ODataRawRawQueryParser : IODataRawQueryParser
+public class ODataRawRawQueryParser : IoDataRawQueryParser
 {
     private readonly EdmTypeProvider _typeProvider;
 
@@ -22,8 +22,8 @@ public class ODataRawRawQueryParser : IODataRawQueryParser
 
     private QueryOptions ParseInternal(Type itemType, ODataRawQueryOptions rawQuery, ODataQueryDefaultOptions defaultOptions)
     {
-        if (itemType == null) throw new ArgumentNullException(nameof(itemType));
-        if (rawQuery == null) throw new ArgumentNullException(nameof(rawQuery));
+        ArgumentNullException.ThrowIfNull(itemType);
+        ArgumentNullException.ThrowIfNull(rawQuery);
 
         var modelType = (EdmComplexType) _typeProvider.GetByClrType(itemType);
 
@@ -54,21 +54,29 @@ public class ODataRawRawQueryParser : IODataRawQueryParser
             : (long?) null;
 
         if (defaultOptions?.DefaultTop is not null && topOption is null)
+        {
             topOption = defaultOptions.DefaultTop;
+        }
 
         if (defaultOptions?.MaxTop is not null && topOption > defaultOptions.MaxTop)
+        {
             topOption = defaultOptions.MaxTop;
+        }
 
         var countOption = false;
 
         if (rawQuery.Count != null)
         {
             if (!bool.TryParse(rawQuery.Count, out countOption))
+            {
                 throw new ODataParseException("Invalid value for $count");
+            }
         }
 
         if (defaultOptions?.AlwaysShowCount == true)
+        {
             countOption = true;
+        }
 
         return new QueryOptions(
             modelType,

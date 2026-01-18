@@ -9,7 +9,7 @@ internal static class QueryCollectionHelper
 {
     public static ODataRawQueryOptions CreateODataRawQueryOptions(IQueryCollection query)
     {
-        if (query == null) throw new ArgumentNullException(nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
 
         var options = new ODataRawQueryOptions();
 

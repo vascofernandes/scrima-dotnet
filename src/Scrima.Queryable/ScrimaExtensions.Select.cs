@@ -12,10 +12,13 @@ public static partial class ScrimaExtensions
 {
     public static IQueryable<TSource> Select<TSource>(this IQueryable<TSource> source, SelectQueryOption selectQueryOption)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (selectQueryOption == null) throw new ArgumentNullException(nameof(selectQueryOption));
-        
-        if (selectQueryOption.Expression is null) return source;
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(selectQueryOption);
+
+        if (selectQueryOption.Expression is null)
+        {
+            return source;
+        }
 
         var selectClause = BuildSelectLambdaExpression(
             source.ElementType,
@@ -28,10 +31,13 @@ public static partial class ScrimaExtensions
     
     public static IQueryable<TResult> Select<TSource,TResult>(this IQueryable<TSource> source, SelectQueryOption selectQueryOption)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (selectQueryOption == null) throw new ArgumentNullException(nameof(selectQueryOption));
-        
-        if (selectQueryOption.Expression is null) return source as IQueryable<TResult>;
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(selectQueryOption);
+
+        if (selectQueryOption.Expression is null)
+        {
+            return source as IQueryable<TResult>;
+        }
 
         var selectClause = BuildSelectLambdaExpression(
             source.ElementType,
@@ -210,8 +216,8 @@ public static partial class ScrimaExtensions
 
     private static bool TryCreateAssignmentExpression(Type targetType, ref Expression valueExpression)
     {
-        if (targetType == null) throw new ArgumentNullException(nameof(targetType));
-        if (valueExpression == null) throw new ArgumentNullException(nameof(valueExpression));
+        ArgumentNullException.ThrowIfNull(targetType);
+        ArgumentNullException.ThrowIfNull(valueExpression);
 
         var sourceType = valueExpression.Type;
 

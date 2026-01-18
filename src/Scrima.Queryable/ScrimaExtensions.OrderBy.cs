@@ -18,12 +18,14 @@ public static partial class ScrimaExtensions
     /// <exception cref="ArgumentNullException">source or orderByQueryOption are null</exception>
     public static IQueryable<TSource> OrderBy<TSource>(this IQueryable<TSource> source, OrderByQueryOption orderByQueryOption)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (orderByQueryOption == null) throw new ArgumentNullException(nameof(orderByQueryOption));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(orderByQueryOption);
 
         if (orderByQueryOption.Properties.Count == 0)
+        {
             return source;
-            
+        }
+
         // o
         var parameter = Expression.Parameter(source.ElementType, "o");
 

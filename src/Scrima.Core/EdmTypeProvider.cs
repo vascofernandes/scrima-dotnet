@@ -70,8 +70,10 @@ public class EdmTypeProvider
     private EdmType ResolveEdmType(Type clrType, IDictionary<Type, EdmType> visitedTypes)
     {
         if (visitedTypes.TryGetValue(clrType, out var visitedEdmType))
-            return visitedEdmType; 
-            
+        {
+            return visitedEdmType;
+        }
+
         if (clrType.IsEnum)
         {
             var members = new List<EdmEnumMember>();

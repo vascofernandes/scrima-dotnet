@@ -79,22 +79,40 @@ public abstract class EdmType : IEquatable<EdmType>
 
     public static bool operator ==(EdmType a, EdmType b)
     {
-        if (a is null) return b is null;
+        if (a is null)
+        {
+            return b is null;
+        }
 
-        if (b is null) return false;
-            
-        if (a.GetType() != b.GetType()) return false;
+        if (b is null)
+        {
+            return false;
+        }
+
+        if (a.GetType() != b.GetType())
+        {
+            return false;
+        }
 
         return a.Equals(b);
     }
 
     public static bool operator !=(EdmType a, EdmType b)
     {
-        if (a is null) return b is not null;
-            
-        if (b is null) return true;
-            
-        if (a.GetType() != b.GetType()) return true;
+        if (a is null)
+        {
+            return b is not null;
+        }
+
+        if (b is null)
+        {
+            return true;
+        }
+
+        if (a.GetType() != b.GetType())
+        {
+            return true;
+        }
 
         return !a.Equals(b);
     }
